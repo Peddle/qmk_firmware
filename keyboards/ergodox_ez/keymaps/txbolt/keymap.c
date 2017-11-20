@@ -43,7 +43,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
         LT(SYMB,KC_GRV),KC_QUOT,      KC_LALT,  KC_LEFT,KC_RGHT,
                                               ALT_T(KC_APP),  KC_DELT,
                                                               KC_HOME,
-                                               KC_BSPC, LCTL(KC_LALT), CTL_T(KC_END),
+                                               KC_BSPC, KC_LGUI, CTL_T(KC_END),
                                                //KC_BSPC, KC_LGUI, CTL_T(KC_END),
         // right hand
              KC_RGHT,     KC_6,   KC_7,   KC_8,   KC_9,   KC_0,             KC_MINS,
@@ -263,9 +263,11 @@ void send_chord(void)
   for(uint8_t i = 0; i < 4; i++)
   {
     if(chord[i])
-      virtser_send(chord[i]);
+    {
+      /* virtser_send(chord[i]); */
+    }
   }
-  virtser_send(0);
+  /* virtser_send(0); */
 }
 
 bool process_record_user(uint16_t keycode, keyrecord_t *record)
