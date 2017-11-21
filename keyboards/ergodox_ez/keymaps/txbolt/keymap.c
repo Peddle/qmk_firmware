@@ -9,6 +9,13 @@
 #define MDIA 2 // media keys
 #define TXBOLT 3 // TxBolt Steno Virtual Serial
 #define TXBOLT2 4 // TxBolt Steno Virtual Serial Alternative Layout
+#define VIM_LAYOUT 5 
+
+enum custom_keycodes {
+    VIM_W = SAFE_RANGE,
+    VIM_E,
+    VIM_B
+};
 
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 /* Keymap 0: Basic layer
@@ -47,7 +54,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
                                                //KC_BSPC, KC_LGUI, CTL_T(KC_END),
         // right hand
              KC_RGHT,     KC_6,   KC_7,   KC_8,   KC_9,   KC_0,             KC_MINS,
-             TG(TXBOLT),  KC_Y,   KC_U,   KC_I,   KC_O,   KC_P,             KC_BSLS,
+             TG(VIM_LAYOUT),  KC_Y,   KC_U,   KC_I,   KC_O,   KC_P,             KC_BSLS,
                           KC_H,   KC_J,   KC_K,   KC_L,   LT(MDIA, KC_SCLN),LT(SYMB, KC_QUOT),
              MEH_T(KC_NO),KC_N,   KC_M,   KC_COMM,KC_DOT, CTL_T(KC_SLSH),   KC_RSFT,
                                   KC_DOWN,KC_UP, KC_LBRC,KC_RBRC,          KC_FN1,
@@ -132,6 +139,48 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
        KC_TRNS,  KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS,
        KC_TRNS,  KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS,
                  KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_MPLY,
+       KC_TRNS,  KC_TRNS, KC_TRNS, KC_MPRV, KC_MNXT, KC_TRNS, KC_TRNS,
+                          KC_VOLU, KC_VOLD, KC_MUTE, KC_TRNS, KC_TRNS,
+       KC_TRNS, KC_TRNS,
+       KC_TRNS,
+       KC_TRNS, KC_TRNS, KC_WBAK
+),
+
+/* Keymap 3: Vim keys
+ *
+ * ,--------------------------------------------------.           ,--------------------------------------------------.
+ * |   =    |   1  |   2  |   3  |   4  |   5  | LEFT |           | RIGHT|   6  |   7  |   8  |   9  |   0  |   -    |
+ * |--------+------+------+------+------+-------------|           |------+------+------+------+------+------+--------|
+ * | Del    |   Q  |   W  |   E  |   R  |   T  |  L1  |           |  TX  |   Y  |   U  |   I  |   O  |   P  |   \    |
+ * |--------+------+------+------+------+------|      |           | BOLT |------+------+------+------+------+--------|
+ * | BkSp   |   A  |   S  |   D  |   F  |   G  |------|           |------|   H  |   J  |   K  |   L  |; / L2|' / Cmd |
+ * |--------+------+------+------+------+------| Hyper|           | Meh  |------+------+------+------+------+--------|
+ * | LShift |Z/Ctrl|   X  |   C  |   V  |   B  |      |           |      |   N  |   M  |   ,  |   .  |//Ctrl| RShift |
+ * `--------+------+------+------+------+-------------'           `-------------+------+------+------+------+--------'
+ *   |Grv/L1|  '"  |AltShf| Left | Right|                                       |  Up  | Down |   [  |   ]  | ~L1  |
+ *   `----------------------------------'                                       `----------------------------------'
+ *                                        ,-------------.       ,-------------.
+ *                                        | App  | LGui |       | Alt  |Ctrl/Esc|
+ *                                 ,------|------|------|       |------+--------+------.
+ *                                 |      |      | Home |       | PgUp |        |      |
+ *                                 | Space|Backsp|------|       |------|  Tab   |Enter |
+ *                                 |      |ace   | End  |       | PgDn |        |      |
+ *                                 `--------------------'       `----------------------'
+ */
+
+[VIM_LAYOUT] = KEYMAP(
+       RESET,   KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS,
+       KC_TRNS, KC_TRNS, VIM_W,   VIM_E,   KC_TRNS, KC_TRNS, KC_TRNS,
+       KC_TRNS, KC_TRNS, KC_MS_L, KC_MS_D, KC_MS_R, KC_TRNS,
+       KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, VIM_B,   KC_TRNS,
+       KC_TRNS, KC_TRNS, KC_TRNS, KC_BTN1, KC_BTN2,
+                                           KC_TRNS, KC_TRNS,
+                                                    KC_TRNS,
+                                  KC_TRNS, KC_TRNS, KC_TRNS,
+    // right hand
+       KC_TRNS,  KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS,
+       KC_TRNS,  KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS,
+                 KC_LEFT, KC_DOWN, KC_UP,   KC_RIGHT,KC_TRNS, KC_TRNS,
        KC_TRNS,  KC_TRNS, KC_TRNS, KC_MPRV, KC_MNXT, KC_TRNS, KC_TRNS,
                           KC_VOLU, KC_VOLD, KC_MUTE, KC_TRNS, KC_TRNS,
        KC_TRNS, KC_TRNS,
@@ -274,10 +323,23 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record)
 {
   // We need to track keypresses in all modes, in case the user
   // changes mode whilst pressing other keys.
-  if (record->event.pressed)
+  if (record->event.pressed){
     pressed_count++;
-  else
+    switch(keycode) {
+      case VIM_B:
+        SEND_STRING(SS_LCTRL(SS_TAP(X_LEFT))); 
+        return false; break;
+      case VIM_E:
+        SEND_STRING(SS_LCTRL(SS_TAP(X_RIGHT))); 
+        return false; break;
+      case VIM_W:
+        SEND_STRING(SS_LCTRL(SS_TAP(X_RIGHT))SS_LCTRL(SS_TAP(X_RIGHT))SS_LCTRL(SS_TAP(X_LEFT))); 
+        return false; break;
+    }
+  }
+  else{
     pressed_count--;
+  }
   return true;
 }
 
